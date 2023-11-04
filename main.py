@@ -1,6 +1,15 @@
 # Import statements
 import tkinter as tk
 from tkinter import ttk
+import random
+
+
+numPlayers = 2
+
+
+# class BoardGeneration():
+#     def __init__(self, parent):
+#         super().__init__(parent)
 
 
 class Window(tk.Toplevel):
@@ -10,16 +19,46 @@ class Window(tk.Toplevel):
         self.geometry("300x100")
         self.title(title)
 
-        if type != "exit" and type != "invalid":
+        if type != "exit" and type != "invalid" and type != "options":
             self.protocol("WM_DELETE_WINDOW", root.close_confirm)
 
         if type == "menu":
             ttk.Button(self,
                        text="Play Game",
-                       command=lambda: [root.open_window("Board", "board"), self.withdraw()]).pack(side=tk.TOP)
+                       command=lambda: [root.open_window("Game Setup", "setup"), self.withdraw()]).pack(side=tk.TOP)
+            ttk.Button(self,
+                       text="Options",
+                       command=lambda: [root.open_window("Options", "options"), self.withdraw()]).pack()
             ttk.Button(self,
                        text="Exit",
                        command=root.close_confirm).pack(side=tk.BOTTOM)
+
+        elif type == "options":  # UNFINISHED
+            ttk.Button(self,
+                       text="Save options",
+                       command=lambda: [menu.deiconify(), self.destroy()]).pack(side=tk.LEFT)  # UNFINISHED
+            ttk.Button(self,
+                       text="Cancel",
+                       command=lambda: [menu.deiconify(), self.destroy()]).pack(side=tk.RIGHT)
+
+        elif type == "setup":
+            numPlayersStr = tk.StringVar()
+            numPlayersEntry = tk.Entry(self, textvariable=numPlayersStr)
+            numPlayersEntry.insert(0, "Enter the number of players, 2-6")
+            numPlayersEntry.pack(expand=True, side=tk.TOP)
+
+            def addPlayers():
+                global numPlayers
+                numPlayers = int(numPlayersEntry.get())
+                #print(numPlayers)
+
+            ttk.Button(self,
+                       text="Continue",
+                       command=lambda: [root.open_window("Board", "board"), addPlayers(), self.destroy()]).pack(side=tk.LEFT)  # UNFINISHED
+            ttk.Button(self,
+                       text="Back",
+                       command=lambda: [menu.deiconify(), self.destroy()]).pack(side=tk.RIGHT)
+
         elif type == "board":
             ttk.Button(self,
                        text="Open new window",
@@ -31,7 +70,7 @@ class Window(tk.Toplevel):
         elif type == "exit":
             # If close is confirmed, calls close_all function
             ttk.Button(self,
-                       text="Exit",
+                       text="Close all windows",
                        command=root.close_all).pack(side=tk.LEFT)
             # If close is not confirmed, closes confirmation window
             ttk.Button(self,
@@ -52,7 +91,7 @@ class Root(tk.Tk):
 
     def open_window(self, title, type):
         window = Window(self, title, type)
-        if type == "exit":  # If exit confirmation window, forces user interaction
+        if type == "exit" or type == "options":  # If exit confirmation window, forces user interaction
             window.grab_set()
 
         return window
@@ -61,7 +100,6 @@ class Root(tk.Tk):
         self.open_window("Confirm exit?", "exit")
 
     # def get_num_players(self):
-
 
     # def create_bg(window):  # Function to create banner on each window
     #     backing = Frame(window, padx=10, pady=10)
