@@ -23,9 +23,10 @@ class Window(tk.Toplevel):
             self.protocol("WM_DELETE_WINDOW", root.close_confirm)
 
         if type == "menu":
+            self.geometry("300x200")
             ttk.Button(self,
                        text="Play Game",
-                       command=lambda: [root.open_window("Game Setup", "setup"), self.withdraw()]).pack(side=tk.TOP)
+                       command=lambda: [root.open_window("Game Setup", "setup"), self.withdraw()]).pack(side=tk.TOP, pady=10)
             ttk.Button(self,
                        text="Options",
                        command=lambda: [root.open_window("Options", "options"), self.withdraw()]).pack()
@@ -50,7 +51,15 @@ class Window(tk.Toplevel):
             def addPlayers():
                 global numPlayers
                 numPlayers = int(numPlayersEntry.get())
+                TEMPcreatePlayerWindows(numPlayers)
                 #print(numPlayers)
+            
+            def TEMPcreatePlayerWindows(numPlayers):
+                global playerNum
+                playerNum = 1
+                while playerNum <= numPlayers:
+                    root.open_window("Player "+str(playerNum), "playerSheet")
+                    playerNum += 1
 
             ttk.Button(self,
                        text="Continue",
@@ -60,9 +69,19 @@ class Window(tk.Toplevel):
                        command=lambda: [menu.deiconify(), self.destroy()]).pack(side=tk.RIGHT)
 
         elif type == "board":
+            self.geometry("600x600")
             ttk.Button(self,
                        text="Open new window",
                        command=lambda: root.open_window("Board", "board")).pack(side=tk.LEFT)
+            # HIDES ALL PLAYERS IF NO OTHER ACTION TAKEN FIRST -> Locks up if no other windows available/open
+            ttk.Button(self,
+                       text="Close this window",
+                       command=self.destroy).pack(side=tk.RIGHT)
+        
+        elif type == "playerSheet":
+            self.geometry("200x400")
+            ttk.Label(self, text="Player Number "+str(playerNum))
+            # HIDES ALL OTHER PLAYERS + BOARD IF NO OTHER ACTION TAKEN FIRST -> Locks up if no other windows available/open
             ttk.Button(self,
                        text="Close this window",
                        command=self.destroy).pack(side=tk.RIGHT)
@@ -76,7 +95,6 @@ class Window(tk.Toplevel):
             ttk.Button(self,
                        text="Back",
                        command=self.destroy).pack(side=tk.RIGHT)
-
 
 class Root(tk.Tk):
     def __init__(self):
@@ -98,8 +116,10 @@ class Root(tk.Tk):
 
     def close_confirm(self):  # Creates confirmation window
         self.open_window("Confirm exit?", "exit")
-
-    # def get_num_players(self):
+    
+    # def hideNonActivePlayer(self, playerTurn):
+    #    for child in self.winfo_children():
+    #        if child.
 
     # def create_bg(window):  # Function to create banner on each window
     #     backing = Frame(window, padx=10, pady=10)
