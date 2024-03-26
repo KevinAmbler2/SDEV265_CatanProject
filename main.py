@@ -32,6 +32,7 @@ import random
 # UNIVERSAL CONSTANTS
 MIN_PLAYERS = 2
 MAX_PLAYERS = 4
+CONTINUATION_CHECK = False
 
 
 class BoardGeneration():
@@ -56,13 +57,20 @@ class Window(tk.Toplevel):
             self.geometry("300x200")
             tk.Button(self,
                        text="Play Game",
-                       command=lambda: [root.open_window("Game Setup", "setup"), self.withdraw()]).pack(side=tk.TOP, pady=10)
+                       command=lambda: [root.open_window("Game Setup", "setup"), self.withdraw()]).pack(side=tk.TOP, pady=5)
+            tk.Button(self,
+                       text="Continue",
+                       command=lambda: [changeContinueCheck(), root.open_window("Game Save", "setup"), self.withdraw()]).pack(pady=5)
             tk.Button(self,
                        text="Options",
-                       command=lambda: [root.open_window("Options", "options"), self.withdraw()]).pack()
+                       command=lambda: [root.open_window("Options", "options"), self.withdraw()]).pack(pady=5)
             tk.Button(self,
                        text="Exit",
-                       command=root.close_confirm).pack(side=tk.BOTTOM)
+                       command=root.close_confirm).pack(side=tk.BOTTOM, pady=5)
+            
+            def changeContinueCheck():
+                global CONTINUATION_CHECK
+                CONTINUATION_CHECK = True
 
         elif type == "options":  # UNFINISHED
             tk.Button(self,
@@ -75,8 +83,30 @@ class Window(tk.Toplevel):
         elif type == "setup":
             numPlayersStr = tk.StringVar()
             numPlayersEntry = tk.Entry(self, textvariable=numPlayersStr)
-            numPlayersEntry.insert(0, "Enter the number of players, "+str(MIN_PLAYERS)+"-"+str(MAX_PLAYERS))
             numPlayersEntry.pack(expand=True, side=tk.TOP)
+
+            # This is kinda a stupid way to do things lol, but it works in theory
+            # Save data needs to be saved in a way that allows program to differeniate sections of info
+            '''if CONTINUATION_CHECK == True:
+                savedPlayerCount = open("savedata.txt", "r")
+                numPlayersEntry.insert(savedPlayerCount)
+            else:
+                numPlayersEntry.insert(0, "Enter the number of players, "+str(MIN_PLAYERS)+"-"+str(MAX_PLAYERS))
+                tk.Button(self,
+                        text="Continue",
+                        command=lambda: addPlayers()).pack(side=tk.LEFT)  # UNFINISHED
+                tk.Button(self,
+                        text="Back",
+                        command=lambda: [menu.deiconify(), self.destroy()]).pack(side=tk.RIGHT) # Hide menu and destroy setup page'''
+                
+            numPlayersEntry.insert(0, "Enter the number of players, "+str(MIN_PLAYERS)+"-"+str(MAX_PLAYERS))
+
+            tk.Button(self,
+                    text="Continue",
+                    command=lambda: addPlayers()).pack(side=tk.LEFT)  # UNFINISHED
+            tk.Button(self,
+                    text="Back",
+                    command=lambda: [menu.deiconify(), self.destroy()]).pack(side=tk.RIGHT) # Hide menu and destroy setup page
 
             def addPlayers():
                 global numPlayers
@@ -123,13 +153,6 @@ class Window(tk.Toplevel):
 
                     currPlayerNum += 1
 
-            tk.Button(self,
-                       text="Continue",
-                       command=lambda: addPlayers()).pack(side=tk.LEFT)  # UNFINISHED
-            tk.Button(self,
-                       text="Back",
-                       command=lambda: [menu.deiconify(), self.destroy()]).pack(side=tk.RIGHT) # Hide menu and destroy setup page
-
         elif type == "board":
             self.geometry("600x600")
             tk.Button(self,
@@ -160,7 +183,7 @@ class Window(tk.Toplevel):
             # If close is confirmed, calls close_all function
             tk.Label(self,text="Are you sure you want to close?").pack()
             tk.Button(self,
-                       text="Close all windows",
+                       text="Save and close all windows",
                        command=root.close_all).pack(side=tk.LEFT)
             # If close is not confirmed, closes confirmation window
             tk.Button(self,
@@ -187,6 +210,9 @@ class Root(tk.Tk):
 
     def close_confirm(self):  # Creates confirmation window
         self.open_window("Confirm exit?", "exit")
+    
+    def load_save(saveName):
+        saveFile = open(saveName, "r")
     
     # def hideNonActivePlayer(self, playerTurn):
     #    for child in self.winfo_children():
